@@ -60,7 +60,6 @@ while read -r changed_file; do
 	    echo "identifier is matching" 
 		
 	  fi
-
-  fi
 ##
+  fi
 done <<< "$(git diff --name-only origin/main...HEAD)"
