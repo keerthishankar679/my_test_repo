@@ -51,7 +51,7 @@ while read -r changed_file; do
     
     stable_version "$directory"
 	
-	if [[ "${directory}/${identifier}_${stable_version}.yaml" == "$changed_file" ]]; then
+	 if [[ "${directory}/${identifier}_${stable_version}.yaml" == "$changed_file" ]]; then
 	
 	  echo "stable version is correct"
 	 
@@ -60,6 +60,6 @@ while read -r changed_file; do
 	    echo "identifier is matching" 
 		
 	  fi
-##
+   fi
   fi
 done <<< "$(git diff --name-only origin/main...HEAD)"
