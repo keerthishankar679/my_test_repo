@@ -13,17 +13,17 @@ stable_version() {
 
   if [ -s "${directory}/${identifier}.stable" ]; then
 
-    echo "${directory}/${identifier}.stable file is not empty."
+    #echo "${directory}/${identifier}.stable file is not empty."
 	
-	stable_version=$(cat ${directory}/${identifier}.stable)
+	  stable_version=$(cat ${directory}/${identifier}.stable)
 	
-	echo $stable_version
+	  echo "Stable version is $stable_version"
 	
   else
   
     echo "error .stable file is empty"
-    
-	exit 1  
+
+	  exit 1  
 	
   fi
 
@@ -31,9 +31,9 @@ stable_version() {
 
 # Print the output of git diff
 
-echo "Changed files in the pull request:"
+#echo "Changed files in the pull request:"
 
-git diff --name-only origin/main...HEAD
+#git diff --name-only origin/main...HEAD
 
 # Loop through the changed files in the pull request
 
@@ -47,19 +47,26 @@ while read -r changed_file; do
 
     directory=$(dirname "$changed_file")
 
-	# Function to get the stable version
+	  # Function to get the stable version
     
     stable_version "$directory"
+
+    if [[ "$changed_file" == "${identifier}_${stable_version}.yaml" ]]; then
 	
-	 if [[ "${directory}/${identifier}_${stable_version}.yaml" == "$changed_file" ]]; then
-	
-	  echo "stable version is correct"
+	    echo "stable version is pointing to a valid version : $changed_file"
 	 
-	  if echo "$changed_file" | grep -q "${identifier}"; then
+	    if echo "$changed_file" | grep -q "${identifier}"; then
 	  
-	    echo "identifier is matching" 
+	      echo "identifier is matching" 
 		
-	  fi
-   fi
+	    fi
+    
+    else
+    
+      echo "there is no such valid version"
+      exit 1
+
+    fi
+
   fi
 done <<< "$(git diff --name-only origin/main...HEAD)"
