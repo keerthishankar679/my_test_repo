@@ -16,8 +16,7 @@ stable_version() {
     #echo "${directory}/${identifier}.stable file is not empty."
 	
 	  stable_version=$(cat ${directory}/${identifier}.stable)
-	
-	  echo "Stable version is $stable_version"
+
 	
   else
   
@@ -36,9 +35,9 @@ stable_version() {
 #git diff --name-only origin/main...HEAD
 
 # Loop through the changed files in the pull request
+flag=0
 
 while read -r changed_file; do
-
   # Check if the file is a YAML file
 
   if [[ "$changed_file" == *".yaml" ]]; then
@@ -51,22 +50,36 @@ while read -r changed_file; do
     
     stable_version "$directory"
 
-    if [[ "$changed_file" == "${identifier}_${stable_version}.yaml" ]]; then
-	
-	    echo "stable version is pointing to a valid version : $changed_file"
+    #echo "$changed_file"
+
+    if [[ "$changed_file" == "${directory}/${identifier}_${stable_version}.yaml" ]]; then
+    
+	    #echo "stable version is pointing to a valid version : $changed_file"
 	 
 	    if echo "$changed_file" | grep -q "${identifier}"; then
 	  
-	      echo "identifier is matching" 
+        echo "Identifier: $identifier"
+        echo "Stable version: $stable_version"
+	      echo "identifier is matching"
+        version_label=$stable_version
+        let flag=flag+1 
 		
 	    fi
     
-    else
-    
-      echo "there is no such valid version"
-      exit 1
-
     fi
 
   fi
+
 done <<< "$(git diff --name-only origin/main...HEAD)"
+
+if [[ $flag -eq 1 ]]; then
+
+  echo "Version Label: $version_label"
+  echo "The stable version is pointing to a valid version"
+
+else
+
+  echo "The stable version is not pointing to a valid version"
+  exit 1
+
+fi
