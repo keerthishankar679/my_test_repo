@@ -18,14 +18,18 @@ while read -r changed_file; do
 
 	  # Function to get the stable version
 	 
-	if echo "$changed_file" | grep -v "${identifier}"; then
+	if ! echo "$changed_file" | grep -q "${identifier}"; then
 	
-      echo "Identifier: $identifier"
-	  echo "identifier is not matching"
-      version_label=$stable_version
+	  changed_file_name=$(basename "$changed_file")
+	  
+	  echo "Error: \"${changed_file_name}\" is not containing the matching identifier \"${identifier}\""
+	  
+	  exit 1
 	  
 	fi
 	
   fi
 
 done <<< "$(git diff --name-only origin/main...HEAD)"
+
+echo "Validation passed, All files in the directory are containing same identifier"
