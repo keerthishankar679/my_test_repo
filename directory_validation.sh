@@ -2,6 +2,8 @@
  
 # Get the identifier from the pipeline YAML file
 
+#apt-get install -y yq jo
+
 identifier="Maven_Build_and_push_to_Nexus" 
 
 
@@ -11,6 +13,8 @@ while read -r changed_file; do
   # Check if the file is a YAML file
 
   if [[ "$changed_file" == *".yaml" ]]; then
+
+    #identifier=`yq -r '.template.identifier' "$changed_file"`
 
     # Extract the directory of the changed file
 
