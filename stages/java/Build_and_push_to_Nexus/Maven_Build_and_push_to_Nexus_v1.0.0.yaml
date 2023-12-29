@@ -2,4 +2,4 @@ template:
   name: Build Maven Nexus
   type: Stage
   identifier: Maven_Build_and_push_to_Nexus
-  versionLabel: v1.0.0
+  versionLabel: v_1.0.0

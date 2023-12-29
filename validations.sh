@@ -5,7 +5,7 @@
  
 # change with <+steps.List_Files_Changed.output.outputVariables.FILES>
 sample=$(git diff --name-only origin/main...HEAD)
-identifier="Maven_Build_and_push_to_Nexus"
+#identifier="Maven_Build_and_push_to_Nexus"
 echo "***************change file are*************"
 echo $sample
 # Array to collect validation errors
@@ -16,10 +16,10 @@ for file in $sample; do
     echo "***************************************"
     echo "${i}. $file "
     # Current dir of change file
-    directory=$(dirname "$file")
+    directory=$(dirname $file)
     # templateId=$(yq -r '.template.identifier' "$file")
  
-    echo "current dir: ${directory}"
+    echo "current dir: $directory"
     echo "templateId: ${templateID}"
  
     # Step to validate the existence of README.md file in the directory
@@ -29,11 +29,14 @@ for file in $sample; do
         errors[0]=1
     fi
     # Step to validate the existence of identifier.stable in the directory
-    if echo "$file"|grep -q ".stable" ; then
-   
-        identifier=$(echo "$file"|grep -i ".stable"| cut -d "." -f 1)
+    file_name=$(basename $file)
+ 
+    if echo "$file_name"| grep -q ".stable" ; then
+ 
+        identifier=$(echo "$file_name"|grep -i ".stable"| cut -d "." -f 1)
         echo "$identifier"
         echo "$directory"
+       
         if [ ! -f "${directory}/${identifier}.stable" ]; then
             #echo "Error: ${directory}/${identifier}.stable file not found. Please associate the file with the template before merging the pull request."
             errors[1]=1
@@ -41,6 +44,7 @@ for file in $sample; do
             #echo "stable found!"
             successfull[1]=1
         fi
+ 
     else
         identifier=" "
     fi
@@ -48,8 +52,8 @@ for file in $sample; do
     let i=i+1
 done
 echo "*****************Final result**************"
-if [ ${successfull[0]} -gt 0 ]; then
-    echo "Readme found!"
+if [ ${errors[0]} -gt 0 ]; then
+    echo "Readme not found!"
 fi
 if [ ${successfull[1]} -gt 0 ]; then
     echo "Stable found!"
