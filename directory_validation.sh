@@ -1,11 +1,6 @@
 #!/bin/bash
  
-# Get the identifier from the pipeline YAML file
-
-#apt-get install -y yq jo
-
-identifier="Maven_Build_and_push_to_Nexus" 
-
+apt-get install -y yq jo
 
 # Loop through the changed files in the pull request
 
@@ -14,13 +9,11 @@ while read -r changed_file; do
 
   if [[ "$changed_file" == *".yaml" ]]; then
 
-    #identifier=`yq -r '.template.identifier' "$changed_file"`
+    identifier=`yq -r '.template.identifier' "$changed_file"`
 
     # Extract the directory of the changed file
 
     directory=$(dirname "$changed_file")
-
-	  # Function to get the stable version
 	 
 	if ! echo "$changed_file" | grep -q "${identifier}"; then
 	
@@ -36,4 +29,4 @@ while read -r changed_file; do
 
 done <<< "$(git diff --name-only origin/main...HEAD)"
 
-echo "Validation passed, All files in the directory are containing same identifier"
+echo "Validation passed, All YAML files in the directory are containing same identifier"
