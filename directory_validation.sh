@@ -1,6 +1,6 @@
 #!/bin/bash
  
-apt-get install -y yq jo
+#apt-get install -y yq jo
 
 # Loop through the changed files in the pull request
 

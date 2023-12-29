@@ -1,1 +1,5 @@
-hi
+template:
+  name: Build Maven Nexus
+  type: Stages
+  identifier: Maven_Build_and_push_to_Nexus
+  versionLabel: v1.0.1
