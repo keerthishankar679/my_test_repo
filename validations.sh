@@ -1,60 +1,71 @@
 #!/bin/bash
  
-# Installing the yq
-# apt-get install -y yq jo
- 
 # change with <+steps.List_Files_Changed.output.outputVariables.FILES>
 sample=$(git diff --name-only origin/main...HEAD)
-#identifier="Maven_Build_and_push_to_Nexus"
-echo "***************change file are*************"
+
+
+echo "***************change file*************"
 echo $sample
-# Array to collect validation errors
-declare -a errors
-declare -a successfull
+echo "***************************************"
+echo ""
+# Arrays to collect validation error_flag & pass_flag
+declare -a error_flag
+declare -a pass_flag
 i=1
 for file in $sample; do
     echo "***************************************"
     echo "${i}. $file "
     # Current dir of change file
     directory=$(dirname $file)
-    # templateId=$(yq -r '.template.identifier' "$file")
- 
-    echo "current dir: $directory"
-    echo "templateId: ${templateID}"
+    # templateId=$(yq -r '.template.templateId' "$file")
  
     # Step to validate the existence of README.md file in the directory
-    if [ -f "${directory}/README.md" ]; then
-        successfull[0]=1
+    if [ ! -f "${directory}/README.md" ]; then    
+        error_flag[0]=1
+        #echo "Error: ${directory}/README.md file not found. Please include a README.md file in the directory before merging the pull request."
     else
-        errors[0]=1
+        pass_flag[0]=1
     fi
-    # Step to validate the existence of identifier.stable in the directory
+    # Step to validate the existence of templateId.stable in the directory
     file_name=$(basename $file)
  
     if echo "$file_name"| grep -q ".stable" ; then
  
-        identifier=$(echo "$file_name"|grep -i ".stable"| cut -d "." -f 1)
-        echo "$identifier"
-        echo "$directory"
-       
-        if [ ! -f "${directory}/${identifier}.stable" ]; then
-            #echo "Error: ${directory}/${identifier}.stable file not found. Please associate the file with the template before merging the pull request."
-            errors[1]=1
+        templateId=$(echo "$file_name"|grep -i ".stable"| cut -d "." -f 1)
+        if [ ! -f "${directory}/${templateId}.stable" ]; then
+            echo "$templateId"
+            #echo "Error: ${directory}/${templateId}.stable file not found. Please associate the file with the template before merging the pull request."
+            error_flag[1]=1
         else
             #echo "stable found!"
-            successfull[1]=1
+            pass_flag[1]=1
         fi
  
     else
-        identifier=" "
+        templateId=" "
     fi
-    echo "value of identifier::$identifier:"
+
+    if [[ $file != *.yaml ]] || [[ $file == .harness/* ]]; then
+        continue
+    fi
+
+    templateId=`yq -r '.template.identifier' "$file"`
+    templateVersion=`yq -r '.template.versionLabel' "$file"`
+    stableFile="${directory}/${templateId}.stable"
+    stableVersion=`cat $stableFile`
+
+    echo "templateId $templateId"
+    echo "templateVersion $templateVersion"
+    echo "stableVersion $stableVersion"  
+    
     let i=i+1
 done
+echo ""
 echo "*****************Final result**************"
-if [ ${errors[0]} -gt 0 ]; then
-    echo "Readme not found!"
+echo ""
+if [ ${pass_flag[0]} -gt 0 ]; then
+    echo "Readme found!"
 fi
-if [ ${successfull[1]} -gt 0 ]; then
+if [ ${pass_flag[1]} -gt 0 ]; then
     echo "Stable found!"
 fi
