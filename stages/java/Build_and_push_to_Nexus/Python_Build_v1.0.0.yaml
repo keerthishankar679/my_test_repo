@@ -1,0 +1,5 @@
+template:
+  name: Build Python
+  type: Stage
+  identifier: Python_Build
+  versionLabel: v1.0.0
