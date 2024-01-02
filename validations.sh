@@ -4,45 +4,46 @@
 sample=$(git diff --name-only origin/main...HEAD)
 
 
-echo "***************change file*************"
-echo $sample
-echo "***************************************"
+echo "***************changed_files************"
+for file in $sample; do
+    echo $file
+done    
+echo "****************************************"
 echo ""
-# Arrays to collect validation error_flag & pass_flag
-declare -a error_flag
-declare -a pass_flag
+# Arrays to collect validation flag
+declare -a flag
+
 i=1
+
 for file in $sample; do
     echo "***************************************"
     echo "${i}. $file "
+    let i=i+1    
     # Current dir of change file
     directory=$(dirname $file)
     # templateId=$(yq -r '.template.templateId' "$file")
  
     # Step to validate the existence of README.md file in the directory
     if [ ! -f "${directory}/README.md" ]; then    
-        error_flag[0]=1
+        flag[0]=1
         #echo "Error: ${directory}/README.md file not found. Please include a README.md file in the directory before merging the pull request."
-    else
-        pass_flag[0]=1
     fi
     # Step to validate the existence of templateId.stable in the directory
     file_name=$(basename $file)
+	echo "$file_name"
  
     if echo "$file_name"| grep -q ".stable" ; then
  
         templateId=$(echo "$file_name"|grep -i ".stable"| cut -d "." -f 1)
+
         if [ ! -f "${directory}/${templateId}.stable" ]; then
             echo "$templateId"
             #echo "Error: ${directory}/${templateId}.stable file not found. Please associate the file with the template before merging the pull request."
-            error_flag[1]=1
-        else
-            #echo "stable found!"
-            pass_flag[1]=1
+            flag[1]=1
         fi
  
     else
-        templateId=" "
+        templateId=""
     fi
 
     if [[ $file != *.yaml ]] || [[ $file == .harness/* ]]; then
@@ -56,16 +57,41 @@ for file in $sample; do
 
     echo "templateId $templateId"
     echo "templateVersion $templateVersion"
-    echo "stableVersion $stableVersion"  
+    echo "stableVersion $stableVersion"
+
+    if [[ "$file_name" == "${templateId}_${stableVersion}.yaml" ]]; then
     
-    let i=i+1
+	    echo "stable version is pointing to a valid version : $file_name"
+	 
+	    if echo "$file_name" | grep -q "${templateId}"; then
+			echo "identifier is matching"
+			flag[2]=1
+		
+	    fi
+    
+    fi	
+    
 done
 echo ""
 echo "*****************Final result**************"
 echo ""
-if [ ${pass_flag[0]} -gt 0 ]; then
-    echo "Readme found!"
+if [[ ${flag[0]} -gt 0 ]]; then
+    echo "README.md not found!"	
+else	
+	echo "README.md found" 
 fi
-if [ ${pass_flag[1]} -gt 0 ]; then
-    echo "Stable found!"
+if [[ ${flag[1]} -gt 0 ]]; then
+    echo "Stable not found!"
+else	
+	echo "Stable found" 
+fi	
+
+if [[ ${flag[2]} -gt 0 ]]; then
+
+  echo "The stable version is pointing to a valid version"
+
+else
+
+  echo "The stable version is not pointing to a valid version"
+  
 fi
