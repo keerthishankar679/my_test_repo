@@ -1,7 +1,7 @@
 #!/bin/bash
  
 # change with <+steps.List_Files_Changed.output.outputVariables.FILES>
-sample=$(git diff --name-only origin/main...HEAD)
+sample="stages/java/Build_and_push_to_Nexus/Maven_Build_and_push_to_Nexus.stable"
 
 echo "***************changed_files************"
 for file in $sample; do
@@ -33,7 +33,7 @@ for file in $sample; do
     file_name=$(basename $file)
     templateId=$(echo "$file_name"| grep -i ".stable"| cut -d "." -f 1)
     stable_templateId=$(echo "$file_name"| grep -i ".stable"| cut -d "." -f 1)
-    if echo "$file_name"| grep -q ".stable" && [ ! -f "${directory}/${templateId}.stable" ] ; then
+    if echo "$file_name"| grep -q ".stable" && [ -f "${directory}/${templateId}.stable" ] ; then
         flag[1]=1
         echo ${templateId}
         #if [ ! -f "${directory}/${templateId}.stable" ]; then
@@ -42,7 +42,7 @@ for file in $sample; do
         #    
         #fi
     else
-        echo "else hi"
+        echo "else hi error"
         flag[1]=0         
     fi    
 
@@ -97,9 +97,9 @@ else
 	echo "README.md not found" 
 fi
 if [[ "${flag[1]}" -gt 0 ]]; then
-    echo ".stable file not found!"
+    echo ".stable file found!"
 else	
-	echo ".stable file found" 
+	echo ".stable file not found" 
 fi	
 if [[ "${flag[2]}" -gt 0 ]]; then
 
