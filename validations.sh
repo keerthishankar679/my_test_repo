@@ -1,7 +1,7 @@
 #!/bin/bash
  
 # change with <+steps.List_Files_Changed.output.outputVariables.FILES>
-sample=$(git diff --name-only origin/main...HEAD | grep -v "stages/java/Build_and_push_to_Nexus/Maven_Build_and_push_to_Nexus.stable")
+sample=$(git diff --name-only origin/main...HEAD | grep -v "validations.sh")
 
 
 echo "***************changed_files************"
@@ -46,9 +46,8 @@ for file in $sample; do
  
     else
         templateId=""
-        echo "elsehi"
     fi
-echo "flag is ${flag[1]}"
+#echo "flag is ${flag[1]}"
     if [[ $file != *.yaml ]] || [[ $file == .harness/* ]]; then
         continue
     fi
