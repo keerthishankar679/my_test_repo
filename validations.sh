@@ -1,7 +1,7 @@
 #!/bin/bash
  
 # change with <+steps.List_Files_Changed.output.outputVariables.FILES>
-sample=$(git diff --name-only origin/main...HEAD)
+sample=$(git diff --name-only origin/main...HEAD | grep -v "stages/java/Build_and_push_to_Nexus/Maven_Build_and_push_to_Nexus.stable")
 echo $sample
 echo "***************changed_files************"
 for file in $sample; do
@@ -33,10 +33,10 @@ for file in $sample; do
     file_name=$(basename $file)
     templateId=$(echo "$file_name"| grep -i ".stable"| cut -d "." -f 1)
     stable_templateId=$(echo "$file_name"| grep -i ".stable"| cut -d "." -f 1)
-
+    echo "template id :${templateId}:"
     if [[ $file == *.stable ]] && [[ -f "${directory}/${templateId}.stable" ]] ; then
         flag[1]=1
-        echo ${templateId}
+        echo "template id :${templateId}:"
         #if [ ! -f "${directory}/${templateId}.stable" ]; then
         #    echo "$templateId"
         #    #echo "Error: ${directory}/${templateId}.stable file not found. Please associate the file with the template before merging the pull request."
@@ -44,6 +44,7 @@ for file in $sample; do
         #fi
     else
         echo "else hi error"
+        echo "template id :${templateId}:"
         flag[1]=0         
     fi    
 
