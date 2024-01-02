@@ -1,7 +1,7 @@
 #!/bin/bash
  
 # change with <+steps.List_Files_Changed.output.outputVariables.FILES>
-sample=$(git diff --name-only origin/main...HEAD | grep -v "stages/java/Build_and_push_to_Nexus/Maven_Build_and_push_to_Nexus.stable")
+sample=$(git diff --name-only origin/main...HEAD)
 
 echo "***************changed_files************"
 for file in $sample; do
@@ -31,11 +31,10 @@ for file in $sample; do
     fi
     # Step to validate the existence of templateId.stable in the directory
     file_name=$(basename $file)
- 
-    if echo "$file_name"| grep -q ".stable" ||  ! -f "${directory}/${templateId}.stable" ; then
+    templateId=$(echo "$file_name"| grep -i ".stable"| cut -d "." -f 1)
+    stable_templateId=$(echo "$file_name"| grep -i ".stable"| cut -d "." -f 1)
+    if echo "$file_name"| grep -q ".stable" && [ ! -f "${directory}/${templateId}.stable" ] ; then
         flag[1]=1
-        templateId=$(echo "$file_name"| grep -i ".stable"| cut -d "." -f 1)
-        stable_templateId=$(echo "$file_name"| grep -i ".stable"| cut -d "." -f 1)
         echo ${templateId}
         #if [ ! -f "${directory}/${templateId}.stable" ]; then
         #    echo "$templateId"
