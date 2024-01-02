@@ -1,8 +1,8 @@
 #!/bin/bash
  
 # change with <+steps.List_Files_Changed.output.outputVariables.FILES>
-sample="stages/java/Build_and_push_to_Nexus/Maven_Build_and_push_to_Nexus.stable"
-
+sample=$(git diff --name-only origin/main...HEAD)
+echo $sample
 echo "***************changed_files************"
 for file in $sample; do
     echo $file
@@ -33,7 +33,8 @@ for file in $sample; do
     file_name=$(basename $file)
     templateId=$(echo "$file_name"| grep -i ".stable"| cut -d "." -f 1)
     stable_templateId=$(echo "$file_name"| grep -i ".stable"| cut -d "." -f 1)
-    if echo "$file_name"| grep -q ".stable" && [ -f "${directory}/${templateId}.stable" ] ; then
+
+    if [[ $file == *.stable ]] && [[ -f "${directory}/${templateId}.stable" ]] ; then
         flag[1]=1
         echo ${templateId}
         #if [ ! -f "${directory}/${templateId}.stable" ]; then
