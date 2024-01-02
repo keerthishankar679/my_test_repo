@@ -3,7 +3,6 @@
 # change with <+steps.List_Files_Changed.output.outputVariables.FILES>
 sample=$(git diff --name-only origin/main...HEAD | grep -v "stages/java/Build_and_push_to_Nexus/Maven_Build_and_push_to_Nexus.stable")
 
-
 echo "***************changed_files************"
 for file in $sample; do
     echo $file
@@ -11,7 +10,7 @@ done
 echo "****************************************"
 echo ""
 # Arrays to collect validation flag
-flag=(0 0 0 0 0)
+declare -a flag
 
 i=1
 
@@ -27,7 +26,7 @@ for file in $sample; do
     if [ -f "${directory}/README.md" ]; then  
         flag[0]=1
     else
-        :
+        flag[0]=0
         #echo "Error: ${directory}/README.md file not found. Please include a README.md file in the directory before merging the pull request."    
     fi
     # Step to validate the existence of templateId.stable in the directory
@@ -35,19 +34,19 @@ for file in $sample; do
  
     if echo "$file_name"| grep -q ".stable" ; then
  
-        templateId=$(echo "$file_name"|grep -i ".stable"| cut -d "." -f 1)
-        stable_templateId=$(echo "$file_name"|grep -i ".stable"| cut -d "." -f 1)
-
-        if [ ! -e "${directory}/${templateId}.stable" ]; then
+        templateId=$(echo "$file_name"| grep -i ".stable"| cut -d "." -f 1)
+        stable_templateId=$(echo "$file_name"| grep -i ".stable"| cut -d "." -f 1)
+        echo ${templateId}
+        if [ ! -f "${directory}/${templateId}.stable" ]; then
             echo "$templateId"
             #echo "Error: ${directory}/${templateId}.stable file not found. Please associate the file with the template before merging the pull request."
             flag[1]=1
         fi
- 
     else
-        templateId=""
+        echo "else hi"
+        flag[1]=0         
     fi    
-echo "flag is ${flag[0]}"
+
     if [[ $file != *.yaml ]] || [[ $file == .harness/* ]]; then
         continue
     fi
@@ -69,16 +68,21 @@ echo "flag is ${flag[0]}"
     if [[ "$file_name" == "${templateId}_${stableVersion}.yaml" ]]; then
 	    echo "stable version is pointing to a valid version : $file_name"
 		flag[2]=1
-    
+    else
+        flag[2]=0
     fi	
 
 	if ! echo "$file_name" | grep -q "${stable_templateId}"; then
 	    flag[3]=1
 	    echo "Error: \"${file_name}\" is not containing the matching identifier \"${stable_templateId}\""  
-	fi
+	else
+        flag[3]=0
+    fi
 
     if [ "$top_level_directory" != "${templateType,,}s" ]; then
         flag[4]=1
+    else
+        flag[4]=0
     fi    
 
 done
@@ -86,17 +90,19 @@ done
 echo ""
 echo "*****************Final result**************"
 echo ""
-if [ ${flag[0]} -gt 0 ]; then
+
+echo ${flag[@]}
+if [[ "${flag[0]}" -gt 0 ]]; then
     echo "README.md found!"	
 else	
 	echo "README.md not found" 
 fi
-if [ ${flag[1]} -gt 0 ]; then
-    echo "Stable not found!"
+if [[ "${flag[1]}" -gt 0 ]]; then
+    echo ".stable file not found!"
 else	
-	echo "Stable found" 
+	echo ".stable file found" 
 fi	
-if [ ${flag[2]} -gt 0 ]; then
+if [[ "${flag[2]}" -gt 0 ]]; then
 
   echo "The stable version is pointing to a valid version"
 
@@ -105,12 +111,12 @@ else
   echo "The stable version is not pointing to a valid version"
   
 fi
-if [[ ${flag[3]} -gt 0 ]]; then
+if [[ "${flag[3]}" -gt 0 ]]; then
     echo "Error: file is not containing the matching identifier \"${stable_templateId}\""
 else
     echo "Idenfier is matching"
 fi
-if [[ ${flag[4]} -gt 0 ]]; then
+if [[ "${flag[4]}" -gt 0 ]]; then
     echo "Error: Template type is not matching the top level directory"
 else
     echo "All templates in top level directory is matching its type"    
