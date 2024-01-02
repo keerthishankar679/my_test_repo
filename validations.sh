@@ -64,6 +64,7 @@ for file in $sample; do
     echo "stableVersion : $stableVersion"
     echo "templateType : $templateType"
     echo "top_level_directory : $top_level_directory"
+    echo "stable_templateId : $stable_templateId"
 
     if [[ "$file_name" == "${templateId}_${stableVersion}.yaml" ]]; then
 	    echo "stable version is pointing to a valid version : $file_name"
