@@ -120,4 +120,6 @@ if [[ "${flag[4]}" -gt 0 ]]; then
     echo "Error: Template type is not matching the top level directory"
 else
     echo "All templates in top level directory is matching its type"    
-fi    
+fi 
+flag=()
+echo ${flag[@]}  
