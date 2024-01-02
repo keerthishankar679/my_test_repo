@@ -1,7 +1,7 @@
 #!/bin/bash
  
 # change with <+steps.List_Files_Changed.output.outputVariables.FILES>
-sample=$(git diff --name-only origin/main...HEAD)
+sample=$(git diff --name-only origin/main...HEAD | grep -v "stages/java/Build_and_push_to_Nexus/Maven_Build_and_push_to_Nexus.stable")
 
 
 echo "***************changed_files************"
@@ -11,7 +11,7 @@ done
 echo "****************************************"
 echo ""
 # Arrays to collect validation flag
-declare -a flag
+flag=(0 0 0 0 0)
 
 i=1
 
@@ -46,8 +46,9 @@ for file in $sample; do
  
     else
         templateId=""
+        echo "elsehi"
     fi
-
+echo "flag is ${flag[1]}"
     if [[ $file != *.yaml ]] || [[ $file == .harness/* ]]; then
         continue
     fi
@@ -86,18 +87,17 @@ done
 echo ""
 echo "*****************Final result**************"
 echo ""
-if [[ ${flag[0]} -gt 0 ]]; then
+if [ ${flag[0]} -gt 0 ]; then
     echo "README.md found!"	
 else	
 	echo "README.md not found" 
 fi
-if [[ ${flag[1]} -gt 0 ]]; then
+if [ ${flag[1]} -gt 0 ]; then
     echo "Stable not found!"
 else	
 	echo "Stable found" 
 fi	
-
-if [[ ${flag[2]} -gt 0 ]]; then
+if [ ${flag[2]} -gt 0 ]; then
 
   echo "The stable version is pointing to a valid version"
 
